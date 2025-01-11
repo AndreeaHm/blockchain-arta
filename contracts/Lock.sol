@@ -1,34 +1,23 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.28;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
 
-// Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract Lock {
-    uint public unlockTime;
-    address payable public owner;
+contract Lock is ERC721URIStorage {
+    uint256 public tokenCounter;
 
-    event Withdrawal(uint amount, uint when);
+    event TokenMinted(uint256 tokenId, address owner, string tokenURI);
 
-    constructor(uint _unlockTime) payable {
-        require(
-            block.timestamp < _unlockTime,
-            "Unlock time should be in the future"
-        );
-
-        unlockTime = _unlockTime;
-        owner = payable(msg.sender);
+    constructor() ERC721("LockNFT", "LNFT") {
+        tokenCounter = 0;
     }
 
-    function withdraw() public {
-        // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
-        // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
+    function mint(string memory tokenURI) public {
+        uint256 tokenId = tokenCounter;
+        _mint(msg.sender, tokenId); // Mint the NFT
+        _setTokenURI(tokenId, tokenURI); // Set the token URI
+        tokenCounter++; // Increment the counter
 
-        require(block.timestamp >= unlockTime, "You can't withdraw yet");
-        require(msg.sender == owner, "You aren't the owner");
-
-        emit Withdrawal(address(this).balance, block.timestamp);
-
-        owner.transfer(address(this).balance);
+        emit TokenMinted(tokenId, msg.sender, tokenURI); // Emit an event
     }
 }

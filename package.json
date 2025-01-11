@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "hardhat": "^2.22.17"
+    "@openzeppelin/contracts": "^5.2.0",
+    "hardhat": "^2.22.17",
+    "web-vitals": "^4.2.4"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0"
