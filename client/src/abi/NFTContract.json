@@ -331,7 +331,7 @@
             "type": "string"
           }
         ],
-        "name": "mint",
+        "name": "mintNFT",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

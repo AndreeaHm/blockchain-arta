@@ -1,31 +1,44 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import NFTContractABI from "./abi/NFTContract.json"; // Corrected path
-
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Your contract address
+import Lock from "./abi/NFTContract.json"; // ABI-ul contractului
 
 const MintNFT = () => {
     const [tokenURI, setTokenURI] = useState("");
+    const [status, setStatus] = useState("");
 
     const mintNFT = async () => {
-        if (!window.ethereum) {
-            alert("Please install MetaMask!");
-            return;
-        }
-
-        const provider = new ethers.BrowserProvider(window.ethereum); // For ethers v6
-        const signer = await provider.getSigner();
-        const nftContract = new ethers.Contract(CONTRACT_ADDRESS, NFTContractABI.abi, signer);
-
         try {
-            const tx = await nftContract.mint(tokenURI); // Call the mint function
-            await tx.wait(); // Wait for the transaction to complete
-            alert("NFT minted successfully!");
+            if (!window.ethereum) {
+                alert("Please install MetaMask!");
+                return;
+            }
+    
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+    
+            // Confirmă adresa conectată
+            const address = await signer.getAddress();
+            console.log("Connected wallet address:", address);
+    
+            const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Actualizează adresa
+            const contract = new ethers.Contract(contractAddress, Lock.abi, signer);
+    
+            // Debugging pentru funcțiile contractului
+            console.log("Contract functions:", Object.keys(contract.functions));
+    
+            // Apel funcție mintNFT
+            setStatus("Minting...");
+            console.log("Available functions:", Object.keys(contract.functions));
+            const tx = await contract.mintNFT(tokenURI); // Transmite doar tokenURI
+            await tx.wait();
+    
+            setStatus(`Minted! Transaction Hash: ${tx.hash}`);
         } catch (error) {
-            console.error("Minting error:", error);
-            alert("Error minting NFT!");
+            console.error("Error minting NFT:", error.message || error);
+            setStatus("Error occurred while minting.");
         }
     };
+    
 
     return (
         <div>
@@ -37,6 +50,7 @@ const MintNFT = () => {
                 onChange={(e) => setTokenURI(e.target.value)}
             />
             <button onClick={mintNFT}>Mint NFT</button>
+            {status && <p>{status}</p>}
         </div>
     );
 };
