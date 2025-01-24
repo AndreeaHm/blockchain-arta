@@ -65,3 +65,20 @@ export async function buyNFT(id, price) {
     console.error("Error buying NFT:", error);
   }
 }
+
+export async function approveLOR(amount, lorTokenAddress, marketplaceAddress) {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+
+  const lorTokenContract = new ethers.Contract(
+    lorTokenAddress,
+    [
+      "function approve(address spender, uint256 amount) public returns (bool)"
+    ],
+    signer
+  );
+
+  const tx = await lorTokenContract.approve(marketplaceAddress, ethers.parseUnits(amount, 18));
+  await tx.wait();
+  console.log(`Approved ${amount} LOR tokens for the marketplace.`);
+}

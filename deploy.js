@@ -1,23 +1,23 @@
 async function main() {
-    const [deployer] = await ethers.getSigners();
-    console.log("Deploying contracts with the account:", deployer.address);
-  
-    const Marketplace = await ethers.getContractFactory("Marketplace");
-    console.log("Contract factory loaded");
-  
-    const marketplace = await Marketplace.deploy();
-    console.log("Deployment transaction sent, waiting for confirmation...");
-  
-    await marketplace.waitForDeployment();
-    console.log("Contract deployed!");
-  
-    const contractAddress = await marketplace.getAddress();
-    console.log("Marketplace deployed to:", contractAddress);
-  }
-  
-  main()
-    .then(() => process.exit(0))
-    .catch((error) => {
-      console.error("Error in deployment script:", error);
-      process.exit(1);
-    });  
+  const [deployer] = await ethers.getSigners();
+
+  const lorTokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with deployed LOR token address
+  const beneficiaryAddress = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199"; // Your beneficiary address
+
+  console.log("Deploying Marketplace with the account:", deployer.address);
+  console.log("LOR Token address:", lorTokenAddress);
+  console.log("Beneficiary address:", beneficiaryAddress);
+
+  const Marketplace = await ethers.getContractFactory("Marketplace");
+  const marketplace = await Marketplace.deploy(lorTokenAddress, beneficiaryAddress);
+  await marketplace.waitForDeployment();
+
+  console.log("Marketplace deployed to:", await marketplace.getAddress());
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
