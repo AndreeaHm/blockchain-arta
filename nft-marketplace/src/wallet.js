@@ -50,7 +50,7 @@ const marketplaceABI = [
 // }
 
 // Funcție pentru cumpărare NFT
-export async function buyNFT(nftId) {
+export async function buyNFT(nftId, price) {
   if (!window.ethereum) {
     console.error("MetaMask is not installed");
     return;
@@ -62,7 +62,10 @@ export async function buyNFT(nftId) {
 
     const marketplace = new ethers.Contract(marketplaceAddress, marketplaceABI, signer);
 
-    const tx = await marketplace.buyNFT(nftId);
+    // Trimitere tranzacție
+    const tx = await marketplace.buyNFT(nftId, {
+      value: ethers.parseUnits(price.toString(), 18), // Trimitere preț în LOR
+    });
     await tx.wait();
     console.log(`Successfully purchased NFT with ID: ${nftId}`);
   } catch (error) {

@@ -12,20 +12,16 @@ const NFTModal = ({ nft, onClose }) => {
         return;
       }
   
-      // Aprobare LOR tokens
-      // await approveLOR(price);
-      // alert(`Approved ${price} LOR tokens for Marketplace.`);
-  
-      // Cumpărare NFT
+      // Cumpărare NFT cu preț
       const id = nft.id;
-      await buyNFT(id);
+      await buyNFT(id, price); // Transmitem prețul către `buyNFT`
       alert("Purchase successful!");
       onClose(); // Închide modalul
     } catch (error) {
       console.error("Error purchasing NFT:", error);
       alert("Error during transaction. Check console for details.");
     }
-  };
+  };  
   
 
   return (
