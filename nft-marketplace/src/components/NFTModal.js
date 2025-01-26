@@ -1,20 +1,32 @@
 import React from "react";
-import { buyNFT } from "../wallet"; // Funcția de cumpărare
+import { buyNFT} from "../wallet"; // Integrează și funcția de aprobare
 import "./NFTModal.css";
 
 const NFTModal = ({ nft, onClose }) => {
   const handleBuy = async () => {
     try {
-      // ID-ul și prețul NFT-ului sunt luate din obiectul nft
+      // Verificăm și convertim prețul în număr
+      const price = parseFloat(nft.price); // Convertim prețul într-un număr valid
+      if (isNaN(price)) {
+        alert("Invalid price format!");
+        return;
+      }
+  
+      // Aprobare LOR tokens
+      // await approveLOR(price);
+      // alert(`Approved ${price} LOR tokens for Marketplace.`);
+  
+      // Cumpărare NFT
       const id = nft.id;
-      const price = parseFloat(nft.price); // Conversie preț din ETH
-      await buyNFT(id, price); // Apelează funcția de cumpărare
+      await buyNFT(id);
       alert("Purchase successful!");
       onClose(); // Închide modalul
     } catch (error) {
       console.error("Error purchasing NFT:", error);
+      alert("Error during transaction. Check console for details.");
     }
   };
+  
 
   return (
     <div className="modal-overlay">
@@ -32,7 +44,7 @@ const NFTModal = ({ nft, onClose }) => {
             </p>
           ) : (
             <button onClick={handleBuy} className="buy-button">
-              Buy for {nft.price}
+              Buy for {nft.price} LOR
             </button>
           )}
         </div>

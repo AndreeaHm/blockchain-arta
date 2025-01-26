@@ -1,30 +1,36 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+interface IERC20 {
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
 
 contract Marketplace {
+    address public owner;
+    IERC20 public lorToken;
+
     struct NFT {
         uint256 id;
         address owner;
-        uint256 price; // Price in LOR tokens
+        uint256 price;
         bool isListed;
     }
 
-    IERC20 public lorToken; // ERC-20 LOR token contract
     mapping(uint256 => NFT) public nfts;
     uint256 public nftCount;
-    address public beneficiary; // Address to receive LOR payments
 
+    event ContractDeployed(address indexed owner);
     event NFTListed(uint256 id, uint256 price);
     event NFTBought(uint256 id, address buyer);
 
-    constructor(address _lorToken, address _beneficiary) {
-        require(_lorToken != address(0), "LOR token address cannot be zero");
-        require(_beneficiary != address(0), "Beneficiary cannot be zero address");
+    constructor(address _owner, address _lorTokenAddress) {
+        require(_owner != address(0), "Invalid owner address");
+        require(_lorTokenAddress != address(0), "Invalid LOR token address");
+        owner = _owner;
+        lorToken = IERC20(_lorTokenAddress);
 
-        lorToken = IERC20(_lorToken); // Set the LOR token address
-        beneficiary = _beneficiary;  // Set the beneficiary address
+        emit ContractDeployed(owner);
     }
 
     function listNFT(uint256 price) external {
@@ -38,13 +44,13 @@ contract Marketplace {
         NFT storage nft = nfts[id];
         require(nft.isListed, "NFT not for sale");
         require(
-            lorToken.allowance(msg.sender, address(this)) >= nft.price,
-            "Insufficient LOR token allowance"
+            lorToken.balanceOf(msg.sender) >= nft.price,
+            "Not enough LOR balance"
         );
 
-        // Transfer LOR tokens from buyer to beneficiary
-        bool sent = lorToken.transferFrom(msg.sender, beneficiary, nft.price);
-        require(sent, "Failed to transfer LOR tokens");
+        // Transfer LOR tokens from buyer to contract owner
+        bool success = lorToken.transferFrom(msg.sender, owner, nft.price);
+        require(success, "Transfer failed");
 
         // Update NFT ownership
         nft.owner = msg.sender;
